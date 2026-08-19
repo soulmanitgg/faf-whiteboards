@@ -41,6 +41,9 @@ jobs:
         env:
           # Don't try to code-sign — these are unsigned builds.
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          # Copy files into the app bundle instead of hard-linking them, which
+          # avoids "EEXIST: file already exists, link ... icon.icns" on macOS.
+          USE_HARD_LINKS: 'false'
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload installers (artifact)
