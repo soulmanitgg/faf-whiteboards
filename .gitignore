@@ -9,3 +9,4 @@ build/icon.ico
 build/icon.png
 *.log
 .DS_Store
+build/icon.icns

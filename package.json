@@ -34,6 +34,7 @@
     "electron-builder": "^24.13.3",
     "ffmpeg-static": "^5.2.0",
     "png-to-ico": "^2.1.8",
+    "png2icons": "^2.0.1",
     "sharp": "^0.33.4",
     "vite": "^5.4.2",
     "wait-on": "^8.0.0"
@@ -94,7 +95,7 @@
         }
       ],
       "category": "public.app-category.productivity",
-      "icon": "build/icon.png",
+      "icon": "build/icon.icns",
       "identity": null,
       "artifactName": "${productName}-${version}-${arch}.${ext}"
     },

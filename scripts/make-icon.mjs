@@ -3,6 +3,7 @@
 // Produces: public/icon.png (sidebar logo) + build/icon.ico (Windows app icon).
 import sharp from 'sharp';
 import pngToIco from 'png-to-ico';
+import png2icons from 'png2icons';
 import { fileURLToPath } from 'node:url';
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -11,7 +12,8 @@ const root = path.dirname(fileURLToPath(import.meta.url));
 const src = path.join(root, '..', 'build', 'icon-source.png');
 const outPng = path.join(root, '..', 'public', 'icon.png');
 const outIco = path.join(root, '..', 'build', 'icon.ico');
-const outMacPng = path.join(root, '..', 'build', 'icon.png'); // electron-builder → .icns on macOS
+const outMacPng = path.join(root, '..', 'build', 'icon.png'); // 1024 png
+const outIcns = path.join(root, '..', 'build', 'icon.icns');  // macOS app icon
 
 const meta = await sharp(src).metadata();
 console.log(`Source icon: ${meta.width}x${meta.height} hasAlpha=${meta.hasAlpha}`);
@@ -36,3 +38,11 @@ const buffers = await Promise.all(
 );
 await writeFile(outIco, await pngToIco(buffers));
 console.log(`Wrote ${outIco}`);
+
+// macOS .icns — generated cross-platform (png2icons is pure JS) so it works in
+// CI on the mac runner too. electron-builder needs build/icon.icns for the .app.
+const src1024 = await sharp(src).resize(1024, 1024, { fit: 'contain', background: TRANSPARENT }).png().toBuffer();
+const icns = png2icons.createICNS(src1024, png2icons.BILINEAR, 0);
+if (!icns) throw new Error('png2icons failed to create .icns');
+await writeFile(outIcns, icns);
+console.log(`Wrote ${outIcns}`);
