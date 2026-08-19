@@ -1,0 +1,11 @@
+node_modules/
+dist/
+release/
+public/excalidraw-assets/
+public/hero.mp4
+public/hero.webm
+public/icon.png
+build/icon.ico
+build/icon.png
+*.log
+.DS_Store

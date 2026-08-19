@@ -1,0 +1,62 @@
+name: build
+
+# Builds the installers in the cloud so you don't need a Mac.
+#  • Every push to main / manual run → uploads the .dmg and .exe as downloadable
+#    artifacts on the Actions run page.
+#  • Pushing a version tag (e.g. v1.3.0) → also creates a GitHub Release with
+#    the installers attached.
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            script: dist:mac
+          - os: windows-latest
+            script: dist
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Generate icons
+        run: npm run make-icon
+
+      - name: Build installer
+        run: npm run ${{ matrix.script }}
+        env:
+          # Don't try to code-sign — these are unsigned builds.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload installers (artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: FAF-Whiteboards-${{ matrix.os }}
+          if-no-files-found: ignore
+          path: |
+            release/*.dmg
+            release/*.exe
+
+      - name: Attach to Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/*.dmg
+            release/*.exe
+            release/*.blockmap

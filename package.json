@@ -1,0 +1,105 @@
+{
+  "name": "faf-whiteboards",
+  "productName": "FAF Whiteboards",
+  "version": "1.3.0",
+  "description": "FAF Whiteboards — open, edit, manage and share .excalidraw whiteboards from your desktop.",
+  "author": "SoulMan",
+  "license": "MIT",
+  "main": "electron/main.cjs",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n VITE,ELECTRON -c cyan,magenta \"vite\" \"npm:dev:electron\"",
+    "dev:vite-only": "vite",
+    "dev:electron": "wait-on tcp:5173 && cross-env NODE_ENV=development electron .",
+    "build": "vite build",
+    "preview": "vite preview",
+    "transcode": "node scripts/transcode-video.mjs",
+    "make-icon": "node scripts/make-icon.mjs",
+    "prepare-assets": "npm run make-icon && npm run transcode",
+    "dist": "npm run build && electron-builder",
+    "dist:mac": "npm run build && electron-builder --mac",
+    "dist:dir": "npm run build && electron-builder --dir"
+  },
+  "dependencies": {
+    "@excalidraw/excalidraw": "^0.17.6",
+    "jspdf": "^2.5.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^31.3.1",
+    "electron-builder": "^24.13.3",
+    "ffmpeg-static": "^5.2.0",
+    "png-to-ico": "^2.1.8",
+    "sharp": "^0.33.4",
+    "vite": "^5.4.2",
+    "wait-on": "^8.0.0"
+  },
+  "build": {
+    "appId": "com.faf.whiteboards",
+    "productName": "FAF Whiteboards",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "fileAssociations": [
+      {
+        "ext": "excalidraw",
+        "name": "Excalidraw Board",
+        "description": "Excalidraw Board",
+        "role": "Editor",
+        "icon": "build/icon.ico"
+      },
+      {
+        "ext": "faf",
+        "name": "FAF Board",
+        "description": "FAF Board",
+        "role": "Editor",
+        "icon": "build/icon.ico"
+      }
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "FAF Whiteboards"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "category": "public.app-category.productivity",
+      "icon": "build/icon.png",
+      "identity": null,
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "dmg": {
+      "title": "FAF Whiteboards"
+    }
+  }
+}
